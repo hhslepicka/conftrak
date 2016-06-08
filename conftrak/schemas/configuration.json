@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "beamline_id": {
+            "type": "string",
+            "description": "The beamline ID"
+        },
+        "time": {
+            "type": "number",
+            "description": "Time the configuration  was created.  Unix epoch time"
+        },
+        "uid": {
+            "type": "string",
+            "description": "Globally unique ID for this configuration"
+        },
+    },
+    "required": [
+        "uid",
+        "time",
+        "beamline_id"
+     ],
+    "type": "object",
+    "description": "Document created for a single configuration"
+}
