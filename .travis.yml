@@ -18,6 +18,7 @@ install:
   - pip install coveralls codecov mongoquery
 
 script:
+  - python setup.py develop
   - nohup python startup.py --mongo_host localhost --mongo_port 27017 --timezon US/Eastern --database conftrak_test --service-port 7771 &
   - py.test -sv 
           
