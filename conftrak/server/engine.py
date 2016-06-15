@@ -32,6 +32,18 @@ def db_connect(database, mongo_host, mongo_port):
     except pymongo.errors.ConnectionFailure:
         raise utils.ConfTrakException("Unable to connect to MongoDB server...")
     database = client[database]
+
+    database.configuration.create_index([('uid', pymongo.DESCENDING)],
+                                        unique=True, background=False)
+    database.configuration.create_index([('time', pymongo.DESCENDING)],
+                                        unique=False, background=True)
+    database.configuration.create_index([('beamline_id', pymongo.DESCENDING)],
+                                        unique=False, background=True,
+                                        sparse=True)
+    database.configuration.create_index([('key', pymongo.DESCENDING)],
+                                        unique=False, background=True,
+                                        sparse=True)
+
     return database
 
 
@@ -118,11 +130,6 @@ class ConfigurationReferenceHandler(DefaultHandler):
                                                  "Invalid schema on document(s)", d)
                 uids.append(d['uid'])
                 res = database.configuration.insert(d)
-                database.configuration.create_index([('uid', pymongo.DESCENDING)],
-                                             unique=True, background=False)
-                database.configuration.create_index([('time', pymongo.DESCENDING),
-                                              ('beamline_id', pymongo.DESCENDING)],
-                                             unique=False, background=False)
         elif isinstance(data, dict):
             data = utils.default_timeuid(data)
             # Ensure the active status on the new Configuration
@@ -135,13 +142,6 @@ class ConfigurationReferenceHandler(DefaultHandler):
                                              "Invalid schema on document(s)", data)
             uids.append(data['uid'])
             res = database.configuration.insert(data)
-            # if inserted, create indices that are certainly being indexed            
-            if res:
-                database.configuration.create_index([('uid', pymongo.DESCENDING)],
-                                             unique=True, background=True)
-                database.configuration.create_index([('time', pymongo.DESCENDING),
-                                                     ('beamline_id', pymongo.DESCENDING)],
-                                             unique=False, background=False)
         else:
             raise utils._compose_err_msg(500,
                                          status='ConfigurationHandler expects list or dict') 
@@ -177,7 +177,8 @@ class ConfigurationReferenceHandler(DefaultHandler):
             raise utils._compose_err_msg(500,
                                          status='delete require a list of uids')
 
-        print("Delete Received list: ", uid_list)
+        if not isinstance(uid_list, (list, tuple)):
+            uid_list = [uid_list]
 
         res = database.configuration.update_many(filter={'uid': {'$in': uid_list}},
                                                  update={'$set': {'active': False}},
