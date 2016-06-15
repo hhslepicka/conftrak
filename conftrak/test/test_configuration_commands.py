@@ -64,11 +64,29 @@ def test_configuration_update(config_ref):
     updated_conf = next(config_ref.find(uid=config_data['uid']))
     assert updated_conf['key'] == 'updated_key'
 
+
 def test_configuration_delete(config_ref):
-    assert False
+    config_data = dict(beamline_id='test_bl', uid=str(uuid.uuid4()),
+                       active=True, time= ttime.time(),key='test_config',
+                       params=dict(param1='test1', param2='test2'))
+    config_ref.create(**config_data)
+    inserted = next(config_ref.find(uid=config_data['uid']))
+    # Make sure that it was inserted
+    assert inserted is not None
+    config_ref.delete([config_data['uid']])
+    with pytest.raises(StopIteration):
+        deleted = next(config_ref.find(uid=config_data['uid']))
 
 
 def test_configuration_find_all(config_ref):
-    assert False
-
+    config_data = dict(beamline_id='test_bl', uid=str(uuid.uuid4()),
+                       active=True, time= ttime.time(),key='test_config',
+                       params=dict(param1='test1', param2='test2'))
+    config_ref.create(**config_data)
+    inserted = next(config_ref.find(uid=config_data['uid']))
+    # Make sure that it was inserted
+    assert inserted is not None
+    config_ref.delete([config_data['uid']])
+    deleted = next(config_ref.find(uid=config_data['uid'], active_only=False))
+    assert deleted is not None
 
