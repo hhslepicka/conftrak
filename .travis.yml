@@ -13,14 +13,14 @@ before_install:
   - . ~/scripts/install-miniconda.sh
 
 install:
-  - conda create -n testenv --yes nose python=$TRAVIS_PYTHON_VERSION pymongo ujson tornado jsonschema requests pyyaml pytz pytest doct -c lightsource2
+  - conda create -n testenv --yes nose python=$TRAVIS_PYTHON_VERSION pymongo ujson tornado jsonschema requests pyyaml pytz doct -c lightsource2
   - source activate testenv
-  - pip install coveralls codecov mongoquery
+  - pip install coveralls codecov mongoquery pytest pytest-cov
+  - python setup.py develop
 
 script:
-  - python setup.py develop
   - nohup python startup.py --mongo_host localhost --mongo_port 27017 --timezon US/Eastern --database conftrak_test --service-port 7771 &
-  - py.test -sv 
+  - py.test -sv --cov=conftrak --cov-report term-missing
           
 after_success:
   - coveralls
