@@ -1,6 +1,5 @@
 import argparse
 import tornado.web
-import sys
 import tornado.ioloop
 import tornado.options
 from  conftrak.server.engine import (ConfigurationReferenceHandler,

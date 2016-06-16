@@ -1,11 +1,9 @@
 import tornado.web
-from tornado import gen
 import pymongo
 import jsonschema
 import ujson
 from conftrak.server import utils
 from jsonschema.exceptions import ValidationError, SchemaError
-from pymongo.errors import PyMongoError
 
 
 def db_connect(database, mongo_host, mongo_port):
@@ -129,7 +127,7 @@ class ConfigurationReferenceHandler(DefaultHandler):
                     raise utils._compose_err_msg(400,
                                                  "Invalid schema on document(s)", d)
                 uids.append(d['uid'])
-                res = database.configuration.insert(d)
+                database.configuration.insert(d)
         elif isinstance(data, dict):
             data = utils.default_timeuid(data)
             # Ensure the active status on the new Configuration
@@ -141,7 +139,7 @@ class ConfigurationReferenceHandler(DefaultHandler):
                 raise utils._compose_err_msg(400,
                                              "Invalid schema on document(s)", data)
             uids.append(data['uid'])
-            res = database.configuration.insert(data)
+            database.configuration.insert(data)
         else:
             raise utils._compose_err_msg(500,
                                          status='ConfigurationHandler expects list or dict') 
@@ -160,8 +158,6 @@ class ConfigurationReferenceHandler(DefaultHandler):
         if any(x in update.keys() for x in ['uid', 'time']):
             raise utils._compose_err_msg(500,
                                    status='Time and uid cannot be updated')
-        print('update query', query)
-        print('update field', update)
         res = database.configuration.update_many(filter=query,
                                            update={'$set': update},
                                            upsert=False)

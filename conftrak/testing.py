@@ -2,7 +2,6 @@ from pymongo import MongoClient
 import time as ttime
 from conftrak.ignition import start_server
 import uuid
-import os
 import shutil
 
 TESTING_CONFIG = {
@@ -27,5 +26,5 @@ class _baseSM:
         def test_create(self):
             db = self.db
             ast_uid = str(uuid.uuid4())
-            uid = db.create(name='obelix', location='gaul', occupation='hero',
+            db.create(name='obelix', location='gaul', occupation='hero',
                             uid=ast_uid)
