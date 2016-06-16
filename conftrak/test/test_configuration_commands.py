@@ -87,6 +87,6 @@ def test_configuration_find_all(config_ref):
     # Make sure that it was inserted
     assert inserted is not None
     config_ref.delete([config_data['uid']])
-    deleted = next(config_ref.find(uid=config_data['uid'], active_only=False))
+    deleted = next(config_ref.find(active_only=False, uid=config_data['uid']))
     assert deleted is not None
 
