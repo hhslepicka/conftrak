@@ -19,7 +19,7 @@ for name, filename in SCHEMA_NAMES.items():
                         resource_name=fn.format(filename))) as fin:
             schemas[name] = ujson.load(fin)
     except FileNotFoundError:
-        raise AmostraException('Schema file not found or does not exist')
+        raise ConfTrakException('Schema file not found or does not exist')
 
 
 def _compose_err_msg(code, status, m_str=''):
