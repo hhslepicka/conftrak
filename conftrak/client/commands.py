@@ -63,7 +63,6 @@ class ConfigurationReference(object):
                    beamline_id=beamline_id,
                    time=time,
                    **kwargs)
-        print("Create to URL: ", self._conf_url)
         ins_doc = _post(self._conf_url, doc)
         return ins_doc[0]
 
