@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import tornado.web
 import pymongo
 import jsonschema
 import ujson
-from conftrak.server import utils
+from . import utils
 from jsonschema.exceptions import ValidationError, SchemaError
 
 

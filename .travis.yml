@@ -5,6 +5,7 @@ services:
   - mongodb
 
 python:
+  - 2.7
   - 3.4
   - 3.5
 
@@ -16,7 +17,7 @@ install:
   - conda create -n testenv --yes nose python=$TRAVIS_PYTHON_VERSION pymongo ujson tornado jsonschema pyyaml pytz doct -c lightsource2
   - source activate testenv
   - pip install coveralls codecov mongoquery pytest pytest-cov requests
-  - python setup.py develop
+  - python setup.py install
 
 script:
   - nohup python startup.py --mongo_host localhost --mongo_port 27017 --timezon US/Eastern --database conftrak_test --service-port 7771 &

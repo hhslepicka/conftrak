@@ -2,11 +2,13 @@ from doct import Document
 import time as ttime
 import pytest
 from conftrak.testing import conftrak_setup, conftrak_teardown
-from conftrak.client.api import ConfigurationReference
+from conftrak.client.commands import ConfigurationReference
 from requests.exceptions import HTTPError, RequestException
 from conftrak.testing import TESTING_CONFIG
 
 import uuid
+import ujson
+import jsonschema
 
 configs_uids = []
 document_insertion_times = []
@@ -22,6 +24,14 @@ def config_ref():
 
 def teardown():
     conftrak_teardown()
+
+
+def test_commands_smoke():
+    c_create = ConfigurationReference.create
+    c_find = ConfigurationReference.find
+    c_update = ConfigurationReference.update
+    c_delete = ConfigurationReference.delete
+    c_get_schema = ConfigurationReference.get_schema
 
 
 def test_configuration_constructor():
@@ -89,4 +99,15 @@ def test_configuration_find_all(config_ref):
     config_ref.delete([config_data['uid']])
     deleted = next(config_ref.find(active_only=False, uid=config_data['uid']))
     assert deleted is not None
+
+
+def test_configuration_schema(config_ref):
+    config_data = dict(beamline_id='test_bl', uid=str(uuid.uuid4()),
+                       active=True, time=ttime.time(),key='test_config',
+                       params=dict(param1='test1', param2='test2'))
+    schema = config_ref.get_schema()
+    try:
+        jsonschema.validate(config_data, schema)
+    except:
+        pytest.fail("test_configuration_schema failed on validate schema.")
 

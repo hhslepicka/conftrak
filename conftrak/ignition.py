@@ -1,10 +1,10 @@
+from __future__ import absolute_import
 import argparse
 import tornado.web
 import tornado.ioloop
 import tornado.options
-from  conftrak.server.engine import (ConfigurationReferenceHandler,
-                                     SchemaHandler,
-                                     db_connect)
+from .server.engine import (ConfigurationReferenceHandler, SchemaHandler,
+                            db_connect)
 from .server.conf import load_configuration
 
 
@@ -16,16 +16,18 @@ def start_server(config=None):
     Parameters
     ----------
     config: dict
-        Command line arguments always have priority over local config or
-        yaml files.Using these parameters,  a tornado event loop is created.
-        Keep in mind that this server is started in lazy fashion. It does not verify
+        Command line arguments always have priority over local config or yaml
+        files.Using these parameters,  a tornado event loop is created.  Keep
+        in mind that this server is started in lazy fashion. It does not verify
         the existence of a mongo instance running on the specified location.
     """
     if not config:
-        config = {k: v for k, v in load_configuration('conftrak', 'CFTRK',
-                                                      ['mongo_host', 'mongo_port', 'timezone',
-                                                       'database', 'service_port'],
-                                                      allow_missing=True).items() if v is not None}
+        config = {k: v for k, v in 
+                  load_configuration('conftrak', 'CFTRK',
+                                     ['mongo_host', 'mongo_port', 'timezone',
+                                      'database', 'service_port'],
+                                     allow_missing=True).items() 
+                  if v is not None}
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', dest='database', type=str,
                         help='name of database to use')

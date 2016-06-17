@@ -2,7 +2,7 @@ from doct import Document
 import ujson
 import requests
 from ..client import conf
-from .utils import doc_or_uid_to_uid, _get, _post, _put, _delete
+from .utils import _get, _post, _put, _delete
 
 
 class ConfTrakException(Exception):
