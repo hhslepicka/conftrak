@@ -5,6 +5,7 @@ import pymongo
 import uuid
 import time as ttime
 
+
 class ConfTrakException(Exception):
     pass
 
@@ -56,11 +57,11 @@ def return2client(handler, payload):
     """
     # TODO: Solve precision issue with json precision
     if isinstance(payload, pymongo.cursor.Cursor):
-            l = []
-            for p in payload:
-                del(p['_id'])
-                l.append(p)
-            handler.write(ujson.dumps(l))
+        l = []
+        for p in payload:
+            del(p['_id'])
+            l.append(p)
+        handler.write(ujson.dumps(l))
     elif isinstance(payload, dict):
         del(payload['_id'])
         handler.write(ujson.dumps(list(payload)))
