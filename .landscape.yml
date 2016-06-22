@@ -1,7 +1,7 @@
 test-warnings: no
 strictness: medium
 python-targets:
-    - 2.7
+    - 2
     - 3
 ignore-paths:
     - conftrak/__init__.py
