@@ -3,30 +3,28 @@ import argparse
 import tornado.web
 import tornado.ioloop
 import tornado.options
+import tornado.httpserver
 from .server.engine import (ConfigurationReferenceHandler, SchemaHandler,
                             db_connect)
 from .server.conf import load_configuration
 
 
-def start_server(config=None):
-    """
-    ConfTrak service startup script.
-    Returns tornado event loop provided configuration.
+class Application(tornado.web.Application):
+    def __init__(self, db, **overrides):
+        handlers = [(r'/configuration', ConfigurationReferenceHandler),
+                     (r'/schema', SchemaHandler)]
+        settings = { 'db': db }
 
-    Parameters
-    ----------
-    config: dict
-        Command line arguments always have priority over local config or yaml
-        files.Using these parameters,  a tornado event loop is created.  Keep
-        in mind that this server is started in lazy fashion. It does not verify
-        the existence of a mongo instance running on the specified location.
-    """
+        tornado.web.Application.__init__(self, handlers, **settings)
+
+
+def parse_configuration(config=None):
     if not config:
-        config = {k: v for k, v in 
+        config = {k: v for k, v in
                   load_configuration('conftrak', 'CFTRK',
                                      ['mongo_host', 'mongo_port', 'timezone',
                                       'database', 'service_port'],
-                                     allow_missing=True).items() 
+                                     allow_missing=True).items()
                   if v is not None}
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', dest='database', type=str,
@@ -54,14 +52,34 @@ def start_server(config=None):
     service_port = args.service_port
     if service_port is None:
         service_port = 7771
-    tornado.options.parse_command_line({'log_file_prefix': args.log_file_prefix})
+
+    config['service_port'] = service_port
+    config['log_file_prefix'] = args.log_file_prefix
+    return config
+
+def start_server(args=None):
+    """
+    ConfTrak service startup script.
+    Returns tornado event loop provided configuration.
+
+    Parameters
+    ----------
+    config: dict
+        Command line arguments always have priority over local config or yaml
+        files.Using these parameters,  a tornado event loop is created.  Keep
+        in mind that this server is started in lazy fashion. It does not verify
+        the existence of a mongo instance running on the specified location.
+    """
+    global server
+    config = parse_configuration(args)
     db = db_connect(config['database'],
                     config['mongo_host'],
                     config['mongo_port'])
-    application = tornado.web.Application([
-        (r'/configuration', ConfigurationReferenceHandler),
-        (r'/schema', SchemaHandler)
-         ], db=db)
+
+    tornado.options.parse_command_line({'log_file_prefix': config['log_file_prefix']})
+    app = Application(db)
     print('Starting ConfTrak service with configuration ', config)
-    application.listen(service_port)
+    server = tornado.httpserver.HTTPServer(app)
+    server.listen(config['service_port'])
+
     tornado.ioloop.IOLoop.current().start()
