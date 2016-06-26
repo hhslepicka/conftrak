@@ -167,7 +167,8 @@ class ConfigurationReferenceHandler(DefaultHandler):
     @tornado.web.asynchronous
     def delete(self):
         database = self.settings['db']
-        incoming = ujson.loads(self.request.body)
+        incoming = utils.unpack_params(self)
+        #incoming = ujson.loads(self.request.body)
         try:
             uid_list = incoming.pop('uid_list')
         except KeyError:

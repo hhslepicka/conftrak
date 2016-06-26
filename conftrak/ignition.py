@@ -10,7 +10,7 @@ from .server.conf import load_configuration
 
 
 class Application(tornado.web.Application):
-    def __init__(self, db, **overrides):
+    def __init__(self, db):
         handlers = [(r'/configuration', ConfigurationReferenceHandler),
                      (r'/schema', SchemaHandler)]
         settings = { 'db': db }

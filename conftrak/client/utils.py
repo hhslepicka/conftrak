@@ -110,7 +110,8 @@ def _delete(url, params):
         In case delete fails, appropriate HTTPError and message string returned
 
     """
-    r = requests.delete(url, data=ujson.dumps(params))
+    url_with_params = "{}?{}".format(url, ujson.dumps(params)) 
+    r = requests.delete(url_with_params)
     r.raise_for_status()
 
 
