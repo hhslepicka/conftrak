@@ -10,10 +10,10 @@ from .server.conf import load_configuration
 
 
 class Application(tornado.web.Application):
-    def __init__(self, db, **overrides):
+    def __init__(self, db):
         handlers = [(r'/configuration', ConfigurationReferenceHandler),
-                     (r'/schema', SchemaHandler)]
-        settings = { 'db': db }
+                    (r'/schema', SchemaHandler)]
+        settings = {'db': db}
 
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -30,7 +30,7 @@ def parse_configuration(config=None):
     parser.add_argument('--database', dest='database', type=str,
                         help='name of database to use')
     parser.add_argument('--mongo_host',
-                         dest='mongo_host', type=str,
+                        dest='mongo_host', type=str,
                         help='host to use')
     parser.add_argument('--timezone', dest='timezone', type=str,
                         help='Local timezone')
@@ -40,7 +40,7 @@ def parse_configuration(config=None):
                         help='port listen to for clients')
     parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
                         help='Log file name that tornado logs are dumped')
-    args = parser.parse_args()
+    args = parser.parse_known_args()[0]
     if args.database is not None:
         config['database'] = args.database
     if args.mongo_host is not None:
@@ -56,6 +56,7 @@ def parse_configuration(config=None):
     config['service_port'] = service_port
     config['log_file_prefix'] = args.log_file_prefix
     return config
+
 
 def start_server(args=None):
     """
@@ -76,7 +77,8 @@ def start_server(args=None):
                     config['mongo_host'],
                     config['mongo_port'])
 
-    tornado.options.parse_command_line({'log_file_prefix': config['log_file_prefix']})
+    tornado.options.parse_command_line({'log_file_prefix':
+                                        config['log_file_prefix']})
     app = Application(db)
     print('Starting ConfTrak service with configuration ', config)
     server = tornado.httpserver.HTTPServer(app)

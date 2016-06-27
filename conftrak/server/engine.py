@@ -5,7 +5,7 @@ import jsonschema
 import ujson
 from . import utils
 from jsonschema.exceptions import ValidationError, SchemaError
-
+from ..exceptions import ConfTrakException
 
 def db_connect(database, mongo_host, mongo_port):
     """Helper function to deal with stateful connections to MongoDB
@@ -28,8 +28,10 @@ def db_connect(database, mongo_host, mongo_port):
     """
     try:
         client = pymongo.MongoClient(host=mongo_host, port=mongo_port)
-    except pymongo.errors.ConnectionFailure:
-        raise utils.ConfTrakException("Unable to connect to MongoDB server...")
+        client.database_names()  # check if the server is really okay.
+    except (pymongo.errors.ConnectionFailure,
+            pymongo.errors.ServerSelectionTimeoutError):
+        raise ConfTrakException("Unable to connect to MongoDB server...")
     database = client[database]
 
     database.configuration.create_index([('uid', pymongo.DESCENDING)],
@@ -89,27 +91,26 @@ class ConfigurationReferenceHandler(DefaultHandler):
         database = self.settings['db']
         query = utils.unpack_params(self)
         if 'active_only' in query:
-            query['active'] = query.pop('active_only')
+            filter_active = query.pop('active_only')
+            if filter_active:
+                query['active'] = True
 
         num = query.pop("num", None)
-        if num:
-            try:
-                docs = database.configuration.find().sort('time',
-                                                   direction=pymongo.DESCENDING
-                                                   ).limit(num)
-            except pymongo.errors.PyMongoError:
-                raise utils._compose_err_msg(500, 'Query on config has failed',
-                                             query)
-        else:
-            try:
+        try:
+            if num:
                 docs = database.configuration.find(query).sort('time',
-                                                        direction=pymongo.DESCENDING)
-            except pymongo.errors.PyMongoError:
-                raise utils._compose_err_msg(500, 'Query Failed: ', query)
-        if docs:
-            utils.return2client(self, docs)
-        else:
-            raise utils._compose_err_msg(500, 'No results found!')
+                                                               direction=pymongo.DESCENDING).limit(num)
+            else:
+                docs = database.configuration.find(query).sort('time',
+                                                               direction=pymongo.DESCENDING)
+            if docs and docs.count() > 0:
+                utils.return2client(self, docs)
+            else:
+                raise utils._compose_err_msg(500, 'No results found!')
+        except pymongo.errors.PyMongoError:
+            raise utils._compose_err_msg(500, 'Query on config has failed',
+                                         query)
+
 
     @tornado.web.asynchronous
     def post(self):
@@ -167,7 +168,8 @@ class ConfigurationReferenceHandler(DefaultHandler):
     @tornado.web.asynchronous
     def delete(self):
         database = self.settings['db']
-        incoming = ujson.loads(self.request.body)
+        incoming = utils.unpack_params(self)
+        #incoming = ujson.loads(self.request.body)
         try:
             uid_list = incoming.pop('uid_list')
         except KeyError:

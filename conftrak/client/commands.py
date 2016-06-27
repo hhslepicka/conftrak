@@ -5,10 +5,6 @@ from ..client import conf
 from .utils import _get, _post, _put, _delete
 
 
-class ConfTrakException(Exception):
-    pass
-
-
 class ConfigurationReference(object):
     """Reference implementation of generic configuration manager"""
     def __init__(self, host=conf.conn_config['host'],

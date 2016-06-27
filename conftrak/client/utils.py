@@ -1,6 +1,6 @@
 import requests
 import ujson
-
+from ..exceptions import ConfTrakNotFoundException
 
 def doc_or_uid_to_uid(doc_or_uid):
     """Given Document or uid return the uid
@@ -39,6 +39,8 @@ def _get(url, params):
 
     """
     r = requests.get(url, ujson.dumps(params))
+    if r.status_code == 500 and "found" in r.reason:
+        raise ConfTrakNotFoundException(r.reason)
     r.raise_for_status()
     return ujson.loads(r.text)
 
@@ -110,7 +112,8 @@ def _delete(url, params):
         In case delete fails, appropriate HTTPError and message string returned
 
     """
-    r = requests.delete(url, data=ujson.dumps(params))
+    url_with_params = "{}?{}".format(url, ujson.dumps(params)) 
+    r = requests.delete(url_with_params)
     r.raise_for_status()
 
 
