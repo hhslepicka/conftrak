@@ -40,7 +40,7 @@ def parse_configuration(config=None):
                         help='port listen to for clients')
     parser.add_argument('--log_file_prefix', dest='log_file_prefix', type=str,
                         help='Log file name that tornado logs are dumped')
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
     if args.database is not None:
         config['database'] = args.database
     if args.mongo_host is not None:

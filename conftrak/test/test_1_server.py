@@ -1,10 +1,13 @@
+import sys
 import uuid
 import ujson
 import pytest
 import time as ttime
+from mock import patch
 from tornado.httputil import url_concat
-from conftrak.ignition import Application
+from conftrak.ignition import Application, parse_configuration
 from conftrak.server.engine import (db_connect)
+from conftrak.server.utils import ConfTrakException
 from .utils import testing_config as TESTING_CONFIG
 
 try:
@@ -18,6 +21,22 @@ def app():
     db = db_connect(TESTING_CONFIG['database'], TESTING_CONFIG['mongohost'],
                     TESTING_CONFIG['mongoport'])
     return Application(db)
+
+
+def test_parse_configuration():
+    testargs = ["prog", "--database", "conftrak", "--mongo_host","localhost",
+                "--mongo_port", "27017","--service_port", "7771", "--timezone", "US/Eastern"]
+    with patch.object(sys, 'argv', testargs):
+        config = parse_configuration(dict())
+        assert config['service_port'] == 7771
+
+def test_db_connect():
+    db = db_connect(TESTING_CONFIG['database'], TESTING_CONFIG['mongohost'],
+                    TESTING_CONFIG['mongoport'])
+
+    with pytest.raises(ConfTrakException):
+        db = db_connect(TESTING_CONFIG['database'], 'invalid_mongo_host',
+                        TESTING_CONFIG['mongoport'])
 
 
 @pytest.mark.gen_test

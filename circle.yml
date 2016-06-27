@@ -28,7 +28,7 @@ dependencies:
       fi
 
     - conda install nose pymongo ujson jsonschema pyyaml pytz doct
-    - $CONDA_ROOT/bin/pip install tornado coveralls codecov mongoquery pytest pytest-cov pytest-tornado requests
+    - $CONDA_ROOT/bin/pip install tornado coveralls codecov mongoquery pytest pytest-cov pytest-tornado mock requests
 
   override:
     - $CONDA_ROOT/bin/python setup.py develop

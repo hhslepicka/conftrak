@@ -28,7 +28,9 @@ def db_connect(database, mongo_host, mongo_port):
     """
     try:
         client = pymongo.MongoClient(host=mongo_host, port=mongo_port)
-    except pymongo.errors.ConnectionFailure:
+        client.database_names() # check if the server is really okay.
+    except (pymongo.errors.ConnectionFailure,
+            pymongo.errors.ServerSelectionTimeoutError):
         raise utils.ConfTrakException("Unable to connect to MongoDB server...")
     database = client[database]
 
