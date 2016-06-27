@@ -4,6 +4,7 @@ import pytest
 from .utils import conftrak_setup, conftrak_teardown
 from .utils import testing_config as TESTING_CONFIG
 from conftrak.client.commands import ConfigurationReference
+from conftrak.client.exceptions import *
 from requests.exceptions import HTTPError, RequestException
 
 import uuid
@@ -92,7 +93,7 @@ def test_configuration_delete(config_ref):
     # Make sure that it was inserted
     assert inserted is not None
     config_ref.delete([config_data['uid']])
-    with pytest.raises(StopIteration):
+    with pytest.raises(ConfTrakNotFoundException):
         deleted = next(config_ref.find(uid=config_data['uid']))
 
 

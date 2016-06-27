@@ -28,7 +28,7 @@ def db_connect(database, mongo_host, mongo_port):
     """
     try:
         client = pymongo.MongoClient(host=mongo_host, port=mongo_port)
-        client.database_names() # check if the server is really okay.
+        client.database_names()  # check if the server is really okay.
     except (pymongo.errors.ConnectionFailure,
             pymongo.errors.ServerSelectionTimeoutError):
         raise utils.ConfTrakException("Unable to connect to MongoDB server...")
@@ -91,27 +91,26 @@ class ConfigurationReferenceHandler(DefaultHandler):
         database = self.settings['db']
         query = utils.unpack_params(self)
         if 'active_only' in query:
-            query['active'] = query.pop('active_only')
+            filter_active = query.pop('active_only')
+            if filter_active:
+                query['active'] = True
 
         num = query.pop("num", None)
-        if num:
-            try:
-                docs = database.configuration.find().sort('time',
-                                                   direction=pymongo.DESCENDING
-                                                   ).limit(num)
-            except pymongo.errors.PyMongoError:
-                raise utils._compose_err_msg(500, 'Query on config has failed',
-                                             query)
-        else:
-            try:
+        try:
+            if num:
                 docs = database.configuration.find(query).sort('time',
-                                                        direction=pymongo.DESCENDING)
-            except pymongo.errors.PyMongoError:
-                raise utils._compose_err_msg(500, 'Query Failed: ', query)
-        if docs:
-            utils.return2client(self, docs)
-        else:
-            raise utils._compose_err_msg(500, 'No results found!')
+                                                               direction=pymongo.DESCENDING).limit(num)
+            else:
+                docs = database.configuration.find(query).sort('time',
+                                                               direction=pymongo.DESCENDING)
+            if docs and docs.count() > 0:
+                utils.return2client(self, docs)
+            else:
+                raise utils._compose_err_msg(500, 'No results found!')
+        except pymongo.errors.PyMongoError:
+            raise utils._compose_err_msg(500, 'Query on config has failed',
+                                         query)
+
 
     @tornado.web.asynchronous
     def post(self):
