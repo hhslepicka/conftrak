@@ -5,7 +5,7 @@ import jsonschema
 import ujson
 from . import utils
 from jsonschema.exceptions import ValidationError, SchemaError
-
+from ..exceptions import ConfTrakException
 
 def db_connect(database, mongo_host, mongo_port):
     """Helper function to deal with stateful connections to MongoDB
@@ -31,7 +31,7 @@ def db_connect(database, mongo_host, mongo_port):
         client.database_names()  # check if the server is really okay.
     except (pymongo.errors.ConnectionFailure,
             pymongo.errors.ServerSelectionTimeoutError):
-        raise utils.ConfTrakException("Unable to connect to MongoDB server...")
+        raise ConfTrakException("Unable to connect to MongoDB server...")
     database = client[database]
 
     database.configuration.create_index([('uid', pymongo.DESCENDING)],

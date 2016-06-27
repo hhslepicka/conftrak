@@ -4,7 +4,7 @@ import pytest
 from .utils import conftrak_setup, conftrak_teardown
 from .utils import testing_config as TESTING_CONFIG
 from conftrak.client.commands import ConfigurationReference
-from conftrak.client.exceptions import *
+from conftrak.exceptions import ConfTrakNotFoundException
 from requests.exceptions import HTTPError, RequestException
 
 import uuid

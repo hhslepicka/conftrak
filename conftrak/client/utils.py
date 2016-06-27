@@ -1,6 +1,6 @@
 import requests
 import ujson
-from .exceptions import *
+from ..exceptions import ConfTrakNotFoundException
 
 def doc_or_uid_to_uid(doc_or_uid):
     """Given Document or uid return the uid

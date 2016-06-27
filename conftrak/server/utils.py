@@ -4,10 +4,7 @@ import ujson
 import pymongo
 import uuid
 import time as ttime
-
-
-class ConfTrakException(Exception):
-    pass
+from ..exceptions import ConfTrakException
 
 
 SCHEMA_PATH = 'schemas'

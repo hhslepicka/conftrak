@@ -3,7 +3,6 @@ import ujson
 import requests
 from ..client import conf
 from .utils import _get, _post, _put, _delete
-from .exceptions import *
 
 
 class ConfigurationReference(object):
