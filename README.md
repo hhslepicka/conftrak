@@ -6,7 +6,7 @@ Based on NSLS-II [Amostra](https://github.com/NSLS-II/amostra).
 
 Quick start:
 ```
-python startup.py --mongo_host=localhost --mongo_port=27017 --database=conftrak
+python startup.py --mongo-host=localhost --mongo-port=27017 --database=conftrak --service-port=7771 --timezone=US/Eastern
 ```
 
 Badges:

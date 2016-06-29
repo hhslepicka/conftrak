@@ -21,8 +21,8 @@ def conftrak_setup():
     env = os.environ.copy()
     f = os.path.dirname(os.path.realpath(__file__))
     proc = Popen([os.path.join(os.path.split(env["_"])[0], "python"),
-                  "../../startup.py", "--mongo_host",
-                  testing_config["mongohost"], "--mongo_port",
+                  "../../startup.py", "--mongo-host",
+                  testing_config["mongohost"], "--mongo-port",
                   str(testing_config['mongoport']), "--database",
                   testing_config['database'], "--timezone", testing_config['tzone'],
                   "--service-port", str(testing_config['serviceport'])]
