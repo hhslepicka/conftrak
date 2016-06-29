@@ -18,8 +18,8 @@ def app():
 
 
 def test_parse_configuration():
-    testargs = ["prog", "--database", "conftrak", "--mongo_host", "localhost",
-                "--mongo_port", "27017", "--service_port", "7771",
+    testargs = ["prog", "--database", "conftrak", "--mongo-host", "localhost",
+                "--mongo-port", "27017", #"--service-port", "7771",
                 "--timezone", "US/Eastern"]
     with patch.object(sys, 'argv', testargs):
         config = parse_configuration(dict())
